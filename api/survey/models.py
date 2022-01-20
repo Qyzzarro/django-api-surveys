@@ -4,7 +4,7 @@ import uuid
 from django.db import models
 from django.db.models.query import QuerySet
 
-from api.survey.utils.exceptions import BeginDateEditException, NumberExcess, WrongDateOrderException
+from .utils.exceptions import BeginDateEditException, NumberExcess, WrongDateOrderException
 
 
 class SurveyModel(models.Model):
@@ -25,7 +25,7 @@ class SurveyModel(models.Model):
     def save(self, *args, **kwargs) -> None:
         self.__block_begin_date()
         self.__check_order_of_begin_end_dates()
-        return super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def __block_begin_date(self) -> None:
         if not self.__first_begin_date in ['', None]:
@@ -71,10 +71,9 @@ class QuestionModel(models.Model):
     content = models.TextField(blank=True, null=False)
 
     def save(self, *args, **kwargs) -> None:
-        super_result = super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
         if self.type == "text":
             self.__create_fake_response_option()
-        return super_result
 
     def get_response_options(self) -> QuerySet:
         return ResponseOptionModel.objects.filter(question=self)
@@ -108,7 +107,7 @@ class ResponseOptionModel(models.Model):
     def save(self, *args, **kwargs) -> None:
         if self.question.type == "text":
             self.__check_number_of_response_options()
-        return super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     @property
     def is_published(self) -> bool:
@@ -152,7 +151,7 @@ class ActorModel(models.Model):
 
     def save(self, *args, **kwargs) -> None:
         self.__block_unique_key()
-        return super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     class Meta:
         db_table = 'api_actors'
@@ -183,7 +182,7 @@ class SessionModel(models.Model):
 
     def save(self, *args, **kwargs) -> None:
         self.__block_unique_key()
-        return super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     class Meta:
         db_table = 'api_sessions'
@@ -209,7 +208,7 @@ class AnswerActModel(models.Model):
 
     def save(self, *args, **kwargs) -> None:
         self.__check_number_of_answers()
-        return super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def __check_number_of_answers(self) -> None:
         if self.response.question.type in ["one", "text"]:

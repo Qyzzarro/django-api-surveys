@@ -4,7 +4,7 @@ from datetime import date, timedelta
 from django.contrib.auth.models import User
 from django.test.client import Client
 
-from api.survey.models import *
+from ..models import *
 
 
 def create_test_actors_via_model(count: int) -> List[ActorModel]:

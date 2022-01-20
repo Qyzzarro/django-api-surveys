@@ -16,8 +16,8 @@ class ModelRelaitedField(serializers.RelatedField):
 
     def to_internal_value(self, data):
         assert isinstance(data, str), f"Unsupported data type (type: {type(data)})"
-        def get_domain_url(url: str) -> str:
-            return url.split('/')[2]
-        absolute_url = data.split(get_domain_url(data))[1]
-        resolved_data = resolve(absolute_url)
+        def strip_domain_url(absolute_url: str) -> str:
+            """Function provide domain striped url. It's based on that domain always placed between 2'th and 3'th '/' letters."""
+            return absolute_url.split(absolute_url.split('/')[2])[1]
+        resolved_data = resolve(strip_domain_url(data))
         return self.get_queryset().get(pk=resolved_data.kwargs["pk"])

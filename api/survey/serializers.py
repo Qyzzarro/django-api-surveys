@@ -2,14 +2,14 @@ from typing import List
 
 from rest_framework import serializers
 
-from api.survey.models import (
+from .models import (
     ActorModel,
     AnswerActModel,
     QuestionModel,
     ResponseOptionModel,
     SessionModel,
     SurveyModel, )
-from api.survey.utils.relations import ModelRelaitedField
+from .utils.relations import ModelRelaitedField
 
 
 class QuestionShortSerializer(serializers.HyperlinkedModelSerializer):

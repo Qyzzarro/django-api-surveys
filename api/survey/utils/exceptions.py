@@ -1,6 +1,6 @@
 from django.core.exceptions import BadRequest
 
-class NumberExcess(BaseException):
+class NumberExcess(RuntimeError):
     pass
 
 class EmptyQueryParamsException(BadRequest):
@@ -9,8 +9,8 @@ class EmptyQueryParamsException(BadRequest):
 class WrongQueryParamsException(BadRequest):
     pass
 
-class WrongDateOrderException(BaseException):
+class WrongDateOrderException(RuntimeError):
     pass
 
-class BeginDateEditException(BaseException):
+class BeginDateEditException(RuntimeError):
     pass

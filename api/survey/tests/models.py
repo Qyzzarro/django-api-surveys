@@ -4,8 +4,8 @@ from uuid import uuid4
 
 from django.test import TestCase
 
-from api.survey.models import *
-from api.survey.tests.utils import *
+from .models import *
+from .utils import *
 
 
 class SurveyModelTestCase(TestCase):

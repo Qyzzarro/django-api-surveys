@@ -1,14 +1,17 @@
+from django.http.response import HttpResponse
 from django.http.response import HttpResponseBadRequest
+from django.db.models.query import QuerySet
+
 from rest_framework import mixins
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.viewsets import GenericViewSet
 
-from api.survey.utils.exceptions import EmptyQueryParamsException, WrongQueryParamsException
-from api.survey.utils.permissions import (
+from .utils.exceptions import EmptyQueryParamsException, WrongQueryParamsException
+from .utils.permissions import (
     AllowListAndRetrieve, DontShowUnpublishedForNonStaff)
-from api.survey.utils.viewsets import PermissedModelViewset
-from api.survey.models import *
-from api.survey.serializers import *
+from .utils.viewsets import PermissedModelViewset
+from .models import *
+from .serializers import *
 
 
 # ---------- SURVEY API ----------
@@ -69,13 +72,13 @@ class AnswerActViewset(
     serializer_class = AnswerActDetailSerializer
     permission_classes = [AllowAny]
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs) -> HttpResponse:
         try:
             return super().list(request, *args, **kwargs)
         except (WrongQueryParamsException, EmptyQueryParamsException) as e:
             return HttpResponseBadRequest(e)
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
         queryset: QuerySet = super().get_queryset()
 
         if len(self.request.query_params) < 1:
@@ -94,4 +97,4 @@ class AnswerActViewset(
             else:
                 raise WrongQueryParamsException("Request query param isn't accessible.")
 
-        return queryset.order_by(("create_time",))
+        return queryset.order_by(("create_time"))

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from api.survey.models import (
+from .models import (
     ActorModel,
     AnswerActModel,
     QuestionModel,

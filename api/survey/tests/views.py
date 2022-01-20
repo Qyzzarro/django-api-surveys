@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 from django.test.testcases import TestCase
 
-from api.survey.tests.utils import *
+from .utils import *
 
 
 class SurveyViewsetTestCase(TestCase):

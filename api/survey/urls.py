@@ -3,7 +3,7 @@ from django.urls import path
 
 from rest_framework.routers import DefaultRouter
 
-from api.survey.views import *
+from .views import *
 
 router: DefaultRouter = DefaultRouter()
 
