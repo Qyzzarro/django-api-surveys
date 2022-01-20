@@ -20,7 +20,6 @@ class PermissedModelViewset(ModelViewSet):
         for unwanted in unwanteds:
             candidates.remove(unwanted)
 
-        #TODO: Add exception for empty query result
         page = self.paginate_queryset(candidates)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
