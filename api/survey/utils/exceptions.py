@@ -1,11 +1,12 @@
+from django.core.exceptions import BadRequest
 
 class NumberExcess(BaseException):
     pass
 
-class EmptyQueryParamsException(BaseException):
+class EmptyQueryParamsException(BadRequest):
     pass
 
-class WrongQueryParamsException(BaseException):
+class WrongQueryParamsException(BadRequest):
     pass
 
 class WrongDateOrderException(BaseException):

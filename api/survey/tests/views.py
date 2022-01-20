@@ -293,6 +293,11 @@ class AnswerActViewSetTestCase(TestCase):
 
             response_options_page_url = response_options.data["next"]
 
+    def test_get_answer_acts_with_empty_query_params(self):
+        create_test_surveys_questions_and_response_options_via_model()
+        response = self.client.get(path=f"/api/answers/")
+        self.assertEqual(response.status_code, 400, response.content)
+
     def test_get_answer_acts_by_query_param_actor_anon(self):
         create_test_surveys_questions_and_response_options_via_model()
         actors, sessions, answers = create_test_actors_sessions_and_answers_via_api()

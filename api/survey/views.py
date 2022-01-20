@@ -94,4 +94,4 @@ class AnswerActViewset(
             else:
                 raise WrongQueryParamsException("Request query param isn't accessible.")
 
-        return queryset.order_by(("create_time"))
+        return queryset.order_by(("create_time",))
