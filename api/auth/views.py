@@ -15,8 +15,8 @@ from rest_framework.views import (View,)
 class Login(View):
     def post(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
+            data = json.loads(request.body.replace(b"'", b'"'))
+        except json.JSONDecodeError as e:
             return HttpResponseBadRequest(f"{request.body} isn't JSON.")
 
         username = data.get('username')

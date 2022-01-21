@@ -11,8 +11,11 @@
             "program": "${workspaceFolder}/manage.py",
             "args": [
                 "test",
+                "--parallel",
+                "1",
+                "api.auth.tests",
                 "api.survey.tests.models",
-                "api.survey.tests.views",
+                "api.survey.tests.viewsets",
             ],
             "django": true,
             "justMyCode": false,

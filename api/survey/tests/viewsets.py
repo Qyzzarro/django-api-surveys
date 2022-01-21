@@ -8,7 +8,7 @@ from .utils import *
 class SurveyViewsetTestCase(TestCase):
     def test_list_surveys_by_anon(self):
         create_test_surveys_questions_and_response_options_via_model()
-        page_url = "/api/surveys/"
+        page_url = "/api/v1/surveys/"
         while page_url:
             response = self.client.get(path=page_url)
             self.assertEqual(response.status_code, 200, response.data)
@@ -30,7 +30,7 @@ class SurveyViewsetTestCase(TestCase):
         create_test_admin()
         self.assertTrue(
             self.client.login(username="admin", password="admin"))
-        page_url = "/api/surveys/"
+        page_url = "/api/v1/surveys/"
         while page_url:
             response = self.client.get(path=page_url)
             self.assertEqual(response.status_code, 200, response.data)
@@ -51,7 +51,7 @@ class SurveyViewsetTestCase(TestCase):
     def test_retrieve_survey_anon(self):
         create_test_surveys_questions_and_response_options_via_model()
         for db_survey in SurveyModel.objects.all():
-            response = self.client.get(path=f"/api/surveys/{db_survey.pk}/")
+            response = self.client.get(path=f"/api/v1/surveys/{db_survey.pk}/")
             if db_survey.is_published:
                 self.assertEqual(response.status_code, 200, response.data)
                 self.assertTrue(response.data["is_published"])
@@ -77,7 +77,7 @@ class SurveyViewsetTestCase(TestCase):
         self.assertTrue(
             self.client.login(username="admin", password="admin"))
         for db_survey in SurveyModel.objects.all():
-            response = self.client.get(path=f"/api/surveys/{db_survey.pk}/")
+            response = self.client.get(path=f"/api/v1/surveys/{db_survey.pk}/")
             self.assertEqual(response.status_code, 200, response.data)
             self.assertEqual(
                 response.data["is_published"],
@@ -92,7 +92,7 @@ class SurveyViewsetTestCase(TestCase):
             self.client.login(username="admin", password="admin"))
         for begin_deltaday in range(-1, 2, 1):
             for end_deltaday in range(begin_deltaday, begin_deltaday + 2, 1):
-                response = self.client.post(path="/api/surveys/", data={
+                response = self.client.post(path="/api/v1/surveys/", data={
                     "header": "Test survey header",
                     "description": "test survey desctiprion",
                     "begin_date": str(date.today() + timedelta(days=begin_deltaday)),
@@ -102,7 +102,7 @@ class SurveyViewsetTestCase(TestCase):
                     201, response.data)
 
         for end_deltaday in range(-1, 2, 1):
-            response = self.client.post(path="/api/surveys/", data={
+            response = self.client.post(path="/api/v1/surveys/", data={
                 "header": "Test survey header",
                 "description": "test survey desctiprion",
                 "end_date": str(date.today() + timedelta(days=end_deltaday)), })
@@ -111,7 +111,7 @@ class SurveyViewsetTestCase(TestCase):
                 201, response.data)
 
         for begin_deltaday in range(-1, 2, 1):
-            response = self.client.post(path="/api/surveys/", data={
+            response = self.client.post(path="/api/v1/surveys/", data={
                 "header": "Test survey header",
                 "description": "test survey desctiprion",
                 "begin_date": str(date.today() + timedelta(days=begin_deltaday)), })
@@ -122,7 +122,7 @@ class SurveyViewsetTestCase(TestCase):
     def test_post_surveys_staff(self):
         for begin_deltaday in range(-1, 2, 1):
             for end_deltaday in range(begin_deltaday, begin_deltaday + 2, 1):
-                response = self.client.post(path="/api/surveys/", data={
+                response = self.client.post(path="/api/v1/surveys/", data={
                     "header": "Test survey header",
                     "description": "test survey desctiprion",
                     "begin_date": str(date.today() + timedelta(days=begin_deltaday)),
@@ -132,7 +132,7 @@ class SurveyViewsetTestCase(TestCase):
                     403, response.data)
 
         for end_deltaday in range(-1, 2, 1):
-            response = self.client.post(path="/api/surveys/", data={
+            response = self.client.post(path="/api/v1/surveys/", data={
                 "header": "Test survey header",
                 "description": "test survey desctiprion",
                 "end_date": str(date.today() + timedelta(days=end_deltaday)), })
@@ -141,7 +141,7 @@ class SurveyViewsetTestCase(TestCase):
                 403, response.data)
 
         for begin_deltaday in range(-1, 2, 1):
-            response = self.client.post(path="/api/surveys/", data={
+            response = self.client.post(path="/api/v1/surveys/", data={
                 "header": "Test survey header",
                 "description": "test survey desctiprion",
                 "begin_date": str(date.today() + timedelta(days=begin_deltaday)), })
@@ -153,7 +153,7 @@ class SurveyViewsetTestCase(TestCase):
 class QuestionViewsetTestCase(TestCase):
     def test_list_questions_anon(self):
         create_test_surveys_questions_and_response_options_via_model()
-        page_url = "/api/questions/"
+        page_url = "/api/v1/questions/"
         while page_url:
             response = self.client.get(path=page_url)
             self.assertEqual(response.status_code, 200, response.data)
@@ -169,7 +169,7 @@ class QuestionViewsetTestCase(TestCase):
         create_test_surveys_questions_and_response_options_via_model()
         for db_question in QuestionModel.objects.all():
             response = self.client.get(
-                path=f"/api/questions/{db_question.pk}/")
+                path=f"/api/v1/questions/{db_question.pk}/")
 
             if db_question.is_published:
                 self.assertEqual(response.status_code, 200, response.data)
@@ -188,7 +188,7 @@ class QuestionViewsetTestCase(TestCase):
             self.client.login(username="admin", password="admin"))
         getted_question_pks_via_api = []
 
-        page_url = "/api/questions/"
+        page_url = "/api/v1/questions/"
         while page_url:
             response = self.client.get(path=page_url)
             self.assertEqual(response.status_code, 200, response.data)
@@ -216,7 +216,7 @@ class QuestionViewsetTestCase(TestCase):
 
         for db_question in QuestionModel.objects.all():
             response = self.client.get(
-                path=f"/api/questions/{db_question.pk}/")
+                path=f"/api/v1/questions/{db_question.pk}/")
             self.assertEqual(response.status_code, 200, response.data)
             self.assertEqual(
                 len(response.data["response_options"]),
@@ -230,7 +230,7 @@ class QuestionViewsetTestCase(TestCase):
         self.assertTrue(
             self.client.login(username="admin", password="admin"))
 
-        page_url = "/api/surveys/"
+        page_url = "/api/v1/surveys/"
         while page_url:
             response_from_surveys = self.client.get(path=page_url)
             self.assertEqual(
@@ -255,18 +255,18 @@ class QuestionViewsetTestCase(TestCase):
 
 class AnswerActViewSetTestCase(TestCase):
     def test_post_answer_acts_anon(self):
-        response = self.client.post(path="/api/actors/")
+        response = self.client.post(path="/api/v1/actors/")
         self.assertEqual(response.status_code, 201)
 
         actor_url = response.data["url"]
-        response = self.client.post(path="/api/sessions/", data={
+        response = self.client.post(path="/api/v1/sessions/", data={
             "actor": actor_url,
         })
         self.assertEqual(response.status_code, 201)
 
         session_url = response.data["url"]
         questions_for_skip = []
-        response_options_page_url = "/api/responses/"
+        response_options_page_url = "/api/v1/responses/"
         while response_options_page_url:
             response_options = self.client.get(
                 path=response_options_page_url)
@@ -279,7 +279,7 @@ class AnswerActViewSetTestCase(TestCase):
                 if question["pk"] in questions_for_skip:
                     continue
 
-                response = self.client.post(path="/api/answers/", data={
+                response = self.client.post(path="/api/v1/answers/", data={
                     "response": response_option["url"],
                     "session": session_url,
                 })
@@ -295,7 +295,7 @@ class AnswerActViewSetTestCase(TestCase):
 
     def test_get_answer_acts_with_empty_query_params(self):
         create_test_surveys_questions_and_response_options_via_model()
-        response = self.client.get(path=f"/api/answers/")
+        response = self.client.get(path=f"/api/v1/answers/")
         self.assertEqual(response.status_code, 400, response.content)
 
     def test_get_answer_acts_by_query_param_actor_anon(self):
@@ -303,7 +303,7 @@ class AnswerActViewSetTestCase(TestCase):
         actors, sessions, answers = create_test_actors_sessions_and_answers_via_api()
 
         for actor in actors:
-            response = self.client.get(path=f"/api/answers/?actor={actor.pk}")
+            response = self.client.get(path=f"/api/v1/answers/?actor={actor.pk}")
             self.assertEqual(response.status_code, 200, response.content)
             for answer in response.data["results"]:
                 self.assertEqual(
@@ -315,7 +315,7 @@ class AnswerActViewSetTestCase(TestCase):
 
         for session in sessions:
             response = self.client.get(
-                path=f"/api/answers/?session={session.pk}")
+                path=f"/api/v1/answers/?session={session.pk}")
             self.assertEqual(response.status_code, 200, response.content)
             for answer in response.data["results"]:
                 self.assertEqual(answer["session"]["pk"], str(session.pk))
@@ -326,7 +326,7 @@ class AnswerActViewSetTestCase(TestCase):
 
         for db_answer in answers:
             response = self.client.get(
-                path=f"/api/answers/?question={db_answer.response.question.pk}")
+                path=f"/api/v1/answers/?question={db_answer.response.question.pk}")
             self.assertEqual(response.status_code, 200, response.content)
             for answer in response.data["results"]:
                 self.assertEqual(

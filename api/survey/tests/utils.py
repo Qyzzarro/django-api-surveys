@@ -157,7 +157,7 @@ def create_test_user(username="user", password="user"):
 
 
 def create_test_question_via_http(client: Client, survey_url: str, type: str):
-    return client.post(path="/api/questions/", data={
+    return client.post(path="/api/v1/questions/", data={
         "survey": survey_url,
         "type": type,
         "content": f"Test question (type:{type})",

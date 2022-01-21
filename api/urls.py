@@ -5,6 +5,6 @@ from django.urls.conf import include
 
 
 urlpatterns = [
-    path('api/', include('api.survey.urls')),
-    path('auth/', include('api.auth.urls')),
+    path('v1/', include('api.survey.urls')),
+    path('v1/', include('api.auth.urls')),
 ]
