@@ -11,7 +11,6 @@ from django.contrib.auth import (authenticate, login, logout,)
 
 from rest_framework.views import (View,)
 
-
 class Login(View):
     def post(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         try:
@@ -23,6 +22,7 @@ class Login(View):
         password = data.get('password')
         if username is None or password is None:
             return HttpResponseBadRequest('Please provide username and password.')
+        
         user = authenticate(username=username, password=password)
         if user is None:
             return HttpResponseForbidden('Invalid credentials.')

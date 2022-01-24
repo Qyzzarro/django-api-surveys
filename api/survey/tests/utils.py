@@ -113,20 +113,20 @@ def create_test_answer_acts_via_model(sessions: Iterable[SessionModel], response
     return answer_acts
 
 
-def create_test_surveys_questions_and_response_options_via_model():
+def create_test_surveys_questions_and_response_options_via_model(number_of_questions: int = 3, number_of_responses: int = 3):
     surveys = create_test_surveys_via_model()
 
     questions: List[QuestionModel] = []
     for survey in surveys:
         for type in ("one", "many", "text"):
             questions.extend(create_test_questions_via_model(
-                survey, type, 3))
+                survey, type, number_of_questions))
 
     responses: List[ResponseOptionModel] = []
     for question in questions:
         if question.type != "text":
             responses.extend(
-                create_test_response_options_via_model(question, 3))
+                create_test_response_options_via_model(question, number_of_responses))
 
     # n_Q = {
     #     "text": Question.objects.filter(type="text").count(),

@@ -3,13 +3,14 @@ from django.http.response import HttpResponseBadRequest
 from django.db.models.query import QuerySet
 
 from rest_framework import mixins
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import (AllowAny, IsAdminUser,)
 from rest_framework.viewsets import GenericViewSet
 
-from .utils.exceptions import EmptyQueryParamsException, WrongQueryParamsException
+from .utils.exceptions import (
+    EmptyQueryParamsException, WrongQueryParamsException,)
 from .utils.permissions import (
     AllowListAndRetrieve, DontShowUnpublishedForNonStaff)
-from .utils.viewsets import PermissedModelViewset
+from .utils.viewsets import (PermissedModelViewset,)
 from .models import *
 from .serializers import *
 
@@ -95,6 +96,7 @@ class AnswerActViewset(
                 queryset = queryset.filter(
                     response__question=self.request.query_params[key])
             else:
-                raise WrongQueryParamsException("Request query param isn't accessible.")
+                raise WrongQueryParamsException(
+                    "Request query param isn't accessible.")
 
         return queryset.order_by(("create_time"))
