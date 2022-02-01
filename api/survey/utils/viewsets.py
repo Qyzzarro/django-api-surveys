@@ -7,18 +7,19 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 
-class PermissedListModelViewset(mixins.ListModelMixin):
+class PermissedRetrieveModelMixin(mixins.RetrieveModelMixin):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         self.check_object_permissions(request, instance)
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
+class PermissedListModelMixin(mixins.ListModelMixin):
     def __filter_via_object_permitions(self, request: Request,  objs: Iterable) -> Iterable:
         unwanteds = []
         for obj in objs:
             for permission in self.get_permissions():
-                if not permission.has_object_permission(self.request, self, obj):
+                if not permission.has_object_permission(request, self, obj):
                     unwanteds.append(obj)
         for unwanted in unwanteds:
             objs.remove(unwanted)
@@ -39,9 +40,9 @@ class PermissedListModelViewset(mixins.ListModelMixin):
 
 
 class PermissedModelViewset(mixins.CreateModelMixin,
-                   mixins.RetrieveModelMixin,
-                   mixins.UpdateModelMixin,
-                   mixins.DestroyModelMixin,
-                   PermissedListModelViewset,
-                   GenericViewSet):
+                            PermissedRetrieveModelMixin,
+                            mixins.UpdateModelMixin,
+                            mixins.DestroyModelMixin,
+                            PermissedListModelMixin,
+                            GenericViewSet):
     pass
