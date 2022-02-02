@@ -1,10 +1,6 @@
-from typing import Iterable
-
 from rest_framework.viewsets import (mixins, GenericViewSet,)
-
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
 
 
 class PermissedRetrieveModelMixin(mixins.RetrieveModelMixin):
@@ -14,8 +10,9 @@ class PermissedRetrieveModelMixin(mixins.RetrieveModelMixin):
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
+
 class PermissedListModelMixin(mixins.ListModelMixin):
-    def __filter_via_object_permitions(self, request: Request,  objs: Iterable) -> Iterable:
+    def __filter_via_object_permitions(self, request: Request, objs: list) -> list:
         unwanteds = []
         for obj in objs:
             for permission in self.get_permissions():
