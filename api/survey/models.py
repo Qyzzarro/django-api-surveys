@@ -32,14 +32,14 @@ class SurveyModel(models.Model):
             self.begin_date = self.__first_begin_date
         if self.__first_begin_date != self.begin_date:
             raise BeginDateEditException(
-                "Edition of begin_date is not available.")
+                'Edition of begin_date is not available.')
 
     def __check_order_of_begin_end_dates(self) -> None:
         if self.begin_date != None:
             if self.end_date != None:
                 if self.begin_date > self.end_date:
                     raise WrongDateOrderException(
-                        "Wrong order of begin end dates.")
+                        'Wrong order of begin end dates.')
 
     @property
     def is_published(self) -> None:
@@ -54,14 +54,15 @@ class SurveyModel(models.Model):
         db_table = 'api_surveys'
         verbose_name = 'survey'
         verbose_name_plural = 'surveys'
+        # ordering = ('', 'begin_date',)
 
 
 class QuestionModel(models.Model):
     # TODO: Use class based choises
     TYPES = (
-        ("one", "Only one answer"),
-        ("many", "Many answers"),
-        ("text", "Text answer"),
+        ('one', 'Only one answer'),
+        ('many', 'Many answers'),
+        ('text', 'Text answer'),
     )
 
     survey = models.ForeignKey(
@@ -72,7 +73,9 @@ class QuestionModel(models.Model):
 
     def save(self, *args, **kwargs) -> None:
         super().save(*args, **kwargs)
-        if self.type == "text":
+        if self.type not in [type_short for type_short, type_logn in QuestionModel.TYPES]:
+            raise BaseException()
+        if self.type == 'text':
             self.__create_fake_response_option()
 
     def get_response_options(self) -> QuerySet:
@@ -80,17 +83,18 @@ class QuestionModel(models.Model):
 
     @property
     def have_fake_answer(self) -> bool:
-        return bool(ResponseOptionModel.objects.filter(question=self, content="fake_answer").count())
+        return bool(ResponseOptionModel.objects.filter(question=self, content='fake_answer').count())
 
     @property
     def is_published(self) -> None:
         return self.survey.is_published
 
     def __create_fake_response_option(self) -> None:
-        ResponseOptionModel.objects.create(question=self, content="fake_answer")
+        ResponseOptionModel.objects.create(
+            question=self, content='fake_answer')
 
     def __str__(self) -> str:
-        return f"{self.survey}: {self.content[:50]}"
+        return f'{self.survey}: {self.content[:50]}'
 
     class Meta:
         db_table = 'api_questions'
@@ -105,7 +109,7 @@ class ResponseOptionModel(models.Model):
     content = models.TextField(blank=False, null=False)
 
     def save(self, *args, **kwargs) -> None:
-        if self.question.type == "text":
+        if self.question.type == 'text':
             self.__check_number_of_response_options()
         super().save(*args, **kwargs)
 
@@ -120,11 +124,11 @@ class ResponseOptionModel(models.Model):
     def __check_number_of_response_options(self) -> None:
         if ResponseOptionModel.objects.filter(question=self.question).count() > 0:
             raise NumberExcess(
-                f"This type of question ({self.question.type}) can't have extra response options.")
+                f'This type of question ({self.question.type}) can\'t have extra response options.')
 
     def __str__(self) -> str:
-        return f"{self.question}: \"{self.content[:50]}\""
-    
+        return f'{self.question}: \'{self.content[:50]}\''
+
     class Meta:
         db_table = 'api_response_options'
         verbose_name = 'response option'
@@ -143,10 +147,10 @@ class ActorModel(models.Model):
         self.__first_unique_key = self.unique_key
 
     def __str__(self) -> str:
-        return f"{self.unique_key}"
+        return f'{self.unique_key}'
 
     def __block_unique_key(self):
-        if not self.unique_key in ("", None):
+        if not self.unique_key in ('', None):
             self.unique_key = self.__first_unique_key
 
     def save(self, *args, **kwargs) -> None:
@@ -167,17 +171,17 @@ class SessionModel(models.Model):
     __first_unique_key = None
     actor = models.ForeignKey(
         ActorModel, on_delete=models.CASCADE,
-        null=False, related_name="sessions")
+        null=False, related_name='sessions')
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.__first_unique_key = self.unique_key
 
     def __str__(self) -> str:
-        return f"{self.unique_key}"
+        return f'{self.unique_key}'
 
     def __block_unique_key(self):
-        if not self.unique_key in ("", None):
+        if not self.unique_key in ('', None):
             self.unique_key = self.__first_unique_key
 
     def save(self, *args, **kwargs) -> None:
@@ -193,38 +197,38 @@ class SessionModel(models.Model):
 class AnswerActModel(models.Model):
     session = models.ForeignKey(
         SessionModel, on_delete=models.CASCADE,
-        related_name="answer_acts", null=False)
+        related_name='answer_acts', null=False)
     response = models.ForeignKey(
         ResponseOptionModel, null=False, on_delete=models.CASCADE,
-        related_name="answer_acts")
+        related_name='answer_acts')
     content = models.TextField(null=True)
     create_time = models.DateTimeField(auto_now_add=True, null=False)
 
     def __str__(self):
-        if self.response.question.type == "text":
-            return f"{self.actor}-> {self.response.question}: {self.content[:50]}"
+        if self.response.question.type == 'text':
+            return f'{self.actor}-> {self.response.question}: {self.content[:50]}'
         else:
-            return f"{self.actor}-> {self.response}"
+            return f'{self.actor}-> {self.response}'
 
     def save(self, *args, **kwargs) -> None:
         self.__check_number_of_answers()
         super().save(*args, **kwargs)
 
     def __check_number_of_answers(self) -> None:
-        if self.response.question.type in ["one", "text"]:
+        if self.response.question.type in ['one', 'text']:
             if AnswerActModel.objects.filter(
                 session=self.session,
                 response__question=self.response.question,
             ).count() > 0:
                 raise NumberExcess(
-                    "Number of answers on this question in this session is exceeded")
-        elif self.response.question.type in ["many"]:
+                    'Number of answers on this question in this session is exceeded')
+        elif self.response.question.type in ['many']:
             if AnswerActModel.objects.filter(
                 session=self.session,
                 response=self.response,
             ).count() > 0:
                 raise NumberExcess(
-                    "Number of answers on this question in this session is exceeded")
+                    'Number of answers on this question in this session is exceeded')
 
     class Meta:
         db_table = 'api_answer_acts'
