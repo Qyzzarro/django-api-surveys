@@ -7,7 +7,8 @@ from .utils import *
 
 class SurveyViewsetTestCase(TestCase):
     def test_list_surveys_by_anon(self):
-        create_test_surveys_questions_and_response_options_via_model(number_of_questions=1)
+        create_test_surveys_questions_and_response_options_via_model(
+            number_of_questions=1)
         page_url = '/api/v1/surveys/'
         while page_url:
             response = self.client.get(path=page_url)
@@ -26,7 +27,8 @@ class SurveyViewsetTestCase(TestCase):
             page_url = response.data['next']
 
     def test_list_surveys_staff(self):
-        create_test_surveys_questions_and_response_options_via_model(number_of_questions=1)
+        create_test_surveys_questions_and_response_options_via_model(
+            number_of_questions=1)
         create_test_admin()
         self.assertTrue(
             self.client.login(username='admin', password='admin'))
@@ -49,7 +51,8 @@ class SurveyViewsetTestCase(TestCase):
             page_url = response.data['next']
 
     def test_retrieve_survey_anon(self):
-        create_test_surveys_questions_and_response_options_via_model(number_of_questions=1)
+        create_test_surveys_questions_and_response_options_via_model(
+            number_of_questions=1)
         for db_survey in SurveyModel.objects.all():
             response = self.client.get(path=f'/api/v1/surveys/{db_survey.pk}/')
             if db_survey.is_published:
@@ -72,7 +75,8 @@ class SurveyViewsetTestCase(TestCase):
                 self.assertEqual(response.status_code, 403)
 
     def test_retrieve_survey_staff(self):
-        create_test_surveys_questions_and_response_options_via_model(number_of_questions=1)
+        create_test_surveys_questions_and_response_options_via_model(
+            number_of_questions=1)
         create_test_admin()
         self.assertTrue(
             self.client.login(username='admin', password='admin'))
@@ -152,7 +156,8 @@ class SurveyViewsetTestCase(TestCase):
 
 class QuestionViewsetTestCase(TestCase):
     def test_list_questions_anon(self):
-        create_test_surveys_questions_and_response_options_via_model(number_of_questions=1)
+        create_test_surveys_questions_and_response_options_via_model(
+            number_of_questions=1)
         page_url = '/api/v1/questions/'
         while page_url:
             response = self.client.get(path=page_url)
@@ -166,7 +171,8 @@ class QuestionViewsetTestCase(TestCase):
             page_url = response.data['next']
 
     def test_get_questions_anon(self):
-        create_test_surveys_questions_and_response_options_via_model(number_of_questions=1)
+        create_test_surveys_questions_and_response_options_via_model(
+            number_of_questions=1)
         for db_question in QuestionModel.objects.all():
             response = self.client.get(
                 path=f'/api/v1/questions/{db_question.pk}/')
@@ -182,7 +188,8 @@ class QuestionViewsetTestCase(TestCase):
                 self.assertEqual(response.status_code, 403)
 
     def test_list_questions_staff(self):
-        create_test_surveys_questions_and_response_options_via_model(number_of_questions=1)
+        create_test_surveys_questions_and_response_options_via_model(
+            number_of_questions=1)
         create_test_admin()
         self.assertTrue(
             self.client.login(username='admin', password='admin'))
@@ -209,7 +216,8 @@ class QuestionViewsetTestCase(TestCase):
                 'Here is found questions that is not represented in API.')
 
     def test_get_question_staff(self):
-        create_test_surveys_questions_and_response_options_via_model(number_of_questions=1)
+        create_test_surveys_questions_and_response_options_via_model(
+            number_of_questions=1)
         create_test_admin()
         self.assertTrue(
             self.client.login(username='admin', password='admin'))
@@ -253,6 +261,72 @@ class QuestionViewsetTestCase(TestCase):
             page_url = response_from_surveys.data['next']
 
 
+class ActorViewsetTestCase(TestCase):
+    def test_access_for_anon_owner(self):
+        actors, sessions, answers = create_test_actors_sessions_and_answers_via_api()
+
+        for actor in actors:
+            response = self.client.get(path=f'/api/v1/actors/{actor.pk}/')
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(str(actor.pk), response.data["pk"])
+
+    def test_access_for_owner(self):
+        user_data = {
+            "username": "user",
+            "password": "user"
+        }
+        user = create_test_user(**user_data)
+        actors, sessions, answers = create_test_actors_sessions_and_answers_via_api(
+            user=user)
+
+        for actor in actors:
+            response = self.client.get(path=f'/api/v1/actors/{actor.pk}/')
+            self.assertEqual(response.status_code, 403)
+
+        self.assertTrue(
+            self.client.login(**user_data))
+        for actor in actors:
+            response = self.client.get(path=f'/api/v1/actors/{actor.pk}/')
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(str(actor.pk), response.data["pk"])
+
+        other_user_data = {
+            "username": "other_user",
+            "password": "other_user"
+        }
+        other_user = create_test_user(**other_user_data)
+        self.assertTrue(
+            self.client.login(**other_user_data))
+
+        for actor in actors:
+            response = self.client.get(path=f'/api/v1/actors/{actor.pk}/')
+            self.assertEqual(response.status_code, 403)
+
+    def test_access_for_admin(self):
+        user_data = {
+            "username": "user",
+            "password": "user"
+        }
+        user = create_test_user(**user_data)
+        actors, sessions, answers = create_test_actors_sessions_and_answers_via_api(
+            user=user)
+
+        admin_data = {
+            "username": "admin",
+            "password": "admin"
+        }
+
+        create_test_admin(**admin_data)
+
+        self.assertTrue(
+            self.client.login(**admin_data))
+
+        for actor in actors:
+            response = self.client.get(path=f'/api/v1/actors/{actor.pk}/')
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(str(actor.pk), response.data["pk"])
+
+
 class AnswerActViewsetTestCase(TestCase):
     def test_post_answer_acts_anon(self):
         response = self.client.post(path='/api/v1/actors/')
@@ -294,23 +368,27 @@ class AnswerActViewsetTestCase(TestCase):
             response_options_page_url = response_options.data['next']
 
     def test_get_answer_acts_with_empty_query_params(self):
-        create_test_surveys_questions_and_response_options_via_model(number_of_questions=1)
+        create_test_surveys_questions_and_response_options_via_model(
+            number_of_questions=1)
         response = self.client.get(path=f'/api/v1/answers/')
         self.assertEqual(response.status_code, 400, response.content)
 
     def test_get_answer_acts_by_query_param_actor_anon(self):
-        create_test_surveys_questions_and_response_options_via_model(number_of_questions=1)
+        create_test_surveys_questions_and_response_options_via_model(
+            number_of_questions=1)
         actors, sessions, answers = create_test_actors_sessions_and_answers_via_api()
 
         for actor in actors:
-            response = self.client.get(path=f'/api/v1/answers/?actor={actor.pk}')
+            response = self.client.get(
+                path=f'/api/v1/answers/?actor={actor.pk}')
             self.assertEqual(response.status_code, 200, response.content)
             for answer in response.data['results']:
                 self.assertEqual(
                     answer['session']['actor']['pk'], str(actor.pk))
 
     def test_get_answer_acts_by_query_param_session_anon(self):
-        create_test_surveys_questions_and_response_options_via_model(number_of_questions=1)
+        create_test_surveys_questions_and_response_options_via_model(
+            number_of_questions=1)
         actors, sessions, answers = create_test_actors_sessions_and_answers_via_api()
 
         for session in sessions:
@@ -321,7 +399,8 @@ class AnswerActViewsetTestCase(TestCase):
                 self.assertEqual(answer['session']['pk'], str(session.pk))
 
     def test_get_answer_acts_by_query_param_question_anon(self):
-        create_test_surveys_questions_and_response_options_via_model(number_of_questions=1)
+        create_test_surveys_questions_and_response_options_via_model(
+            number_of_questions=1)
         actors, sessions, answers = create_test_actors_sessions_and_answers_via_api()
 
         for db_answer in answers:

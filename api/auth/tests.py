@@ -16,23 +16,23 @@ class AuthTestCase(TestCase):
             "/api/v1/auth/",
             data={
                 "username": username,
-                "password": password,},
+                "password": password, },
             content_type="json")
         self.assertEqual(response.status_code, 200)
-    
+
     def test_logout(self):
         _, username, password = create_test_user()
         response = self.client.post(
             "/api/v1/auth/",
             data={
                 "username": username,
-                "password": password,},
+                "password": password, },
             content_type="json")
         self.assertEqual(response.status_code, 200)
-        
+
         response = self.client.get("/api/v1/auth/")
         self.assertEqual(response.status_code, 200)
-    
+
     # def test_create_user(self):
     #     response = self.client.post(
     #         "/api/v1/auth/create_user/"

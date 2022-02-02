@@ -9,9 +9,9 @@ from rest_framework.viewsets import GenericViewSet
 from .utils.exceptions import (
     EmptyQueryParamsException, WrongQueryParamsException,)
 from .utils.permissions import (
-    AllowListAndRetrieve, DontShowUnpublishedForNonStaff)
+    AllowListAndRetrieve, DontShowUnpublishedForNonStaff, IsOwnerOrAdmin)
 from .utils.viewsets import (
-    PermissedModelViewset,)
+    PermissedModelViewset, PermissedRetrieveModelMixin,)
 from .models import (
     SurveyModel, QuestionModel, ResponseOptionModel,
     ActorModel, SessionModel, AnswerActModel,)
@@ -53,16 +53,16 @@ class ResponseOptionViewset(PermissedModelViewset):
 # ---------- ACTOR API ----------
 
 
-class ActorViewset(GenericViewSet, mixins.RetrieveModelMixin, mixins.CreateModelMixin):
+class ActorViewset(GenericViewSet, PermissedRetrieveModelMixin, mixins.CreateModelMixin):
     queryset = ActorModel.objects.all()
     serializer_class = ActorDetailSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsOwnerOrAdmin]
 
 
 # ---------- SESSION API ----------
 
 
-class SessionViewset(GenericViewSet, mixins.RetrieveModelMixin, mixins.CreateModelMixin):
+class SessionViewset(GenericViewSet, PermissedRetrieveModelMixin, mixins.CreateModelMixin):
     queryset = SessionModel.objects.all()
     serializer_class = SessionDetailSerializer
     permission_classes = [AllowAny]

@@ -36,6 +36,12 @@ class PermissedListModelMixin(mixins.ListModelMixin):
             return Response(serializer.data)
 
 
+class ReadOnlyPermissedModelViewset(PermissedRetrieveModelMixin,
+                                    PermissedListModelMixin,
+                                    GenericViewSet):
+    pass
+
+
 class PermissedModelViewset(mixins.CreateModelMixin,
                             PermissedRetrieveModelMixin,
                             mixins.UpdateModelMixin,

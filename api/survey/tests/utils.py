@@ -1,16 +1,16 @@
 from typing import Iterable, List
 from datetime import date, timedelta
 
-from django.contrib.auth.models import User
+from django.contrib.auth import models
 from django.test.client import Client
 
 from ..models import *
 
 
-def create_test_actors_via_model(count: int) -> List[ActorModel]:
+def create_test_actors_via_model(count: int, user: models.User = None) -> List[ActorModel]:
     actors: List[ActorModel] = []
     for _ in range(count):
-        actor = ActorModel()
+        actor = ActorModel(user=user)
         actor.save()
         actors.append(actor)
     return actors
@@ -143,16 +143,18 @@ def create_test_surveys_questions_and_response_options_via_model(number_of_quest
 
 
 def create_test_admin(username="admin", password="admin"):
-    admin = User(username=username)
+    admin = models.User(username=username)
     admin.set_password(password)
     admin.is_staff, admin.is_superuser = True, True
     admin.save()
+    return admin
 
 
 def create_test_user(username="user", password="user"):
-    user = User(username=username)
+    user = models.User(username=username)
     user.set_password(password)
     user.save()
+    return user
 
 
 def create_test_question_via_http(client: Client, survey_url: str, type: str):
@@ -162,8 +164,8 @@ def create_test_question_via_http(client: Client, survey_url: str, type: str):
         "content": f"Test question (type:{type})",
     })
 
-def create_test_actors_sessions_and_answers_via_api():
-    actors = create_test_actors_via_model(1)
+def create_test_actors_sessions_and_answers_via_api(user: models.User = None):
+    actors = create_test_actors_via_model(1, user)
     sessions: List[SessionModel] = []
     for actor in actors:
         sessions.extend(create_test_sessions_via_model(actor, 1))

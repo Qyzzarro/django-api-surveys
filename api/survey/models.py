@@ -1,17 +1,20 @@
 from datetime import date
 import uuid
 
-from django.db import models
+from django.conf import settings
+from django.contrib.auth import models as auth_models
+from django.db import models as db_models
 from django.db.models.query import QuerySet
 
-from .utils.exceptions import BeginDateEditException, NumberExcess, WrongDateOrderException
+from .utils.exceptions import (
+    BeginDateEditException, NumberExcess, WrongDateOrderException,)
 
 
-class SurveyModel(models.Model):
-    header = models.TextField(blank=False, null=False)
-    description = models.TextField(null=False, blank=True)
-    begin_date = models.DateField(null=True, blank=True)
-    end_date = models.DateField(null=True, blank=True)
+class SurveyModel(db_models.Model):
+    header = db_models.TextField(blank=False, null=False)
+    description = db_models.TextField(null=False, blank=True)
+    begin_date = db_models.DateField(null=True, blank=True)
+    end_date = db_models.DateField(null=True, blank=True)
 
     __first_begin_date = None
 
@@ -57,7 +60,7 @@ class SurveyModel(models.Model):
         ordering = ('begin_date',)
 
 
-class QuestionModel(models.Model):
+class QuestionModel(db_models.Model):
     # TODO: Use class based choises
     TYPES = (
         ('one', 'Only one answer'),
@@ -65,16 +68,16 @@ class QuestionModel(models.Model):
         ('text', 'Text answer'),
     )
 
-    survey = models.ForeignKey(
-        SurveyModel, on_delete=models.CASCADE,
+    survey = db_models.ForeignKey(
+        SurveyModel, on_delete=db_models.CASCADE,
         related_name='questions', null=False)
-    type = models.TextField(choices=TYPES, blank=False, null=False)
-    content = models.TextField(blank=True, null=False)
+    type = db_models.TextField(choices=TYPES, blank=False, null=False)
+    content = db_models.TextField(blank=True, null=False)
 
     def save(self, *args, **kwargs) -> None:
         super().save(*args, **kwargs)
-        if self.type not in [type_short for type_short, type_logn in QuestionModel.TYPES]:
-            raise BaseException()
+        if self.type not in [type_short for type_short, type_long in QuestionModel.TYPES]:
+            raise BaseException()  # TODO: Add exception
         if self.type == 'text':
             self.__create_fake_response_option()
 
@@ -103,11 +106,11 @@ class QuestionModel(models.Model):
         ordering = ('pk',)
 
 
-class ResponseOptionModel(models.Model):
-    question = models.ForeignKey(
-        QuestionModel, on_delete=models.CASCADE,
+class ResponseOptionModel(db_models.Model):
+    question = db_models.ForeignKey(
+        QuestionModel, on_delete=db_models.CASCADE,
         related_name='response_options', null=False)
-    content = models.TextField(blank=False, null=False)
+    content = db_models.TextField(blank=False, null=False)
 
     def save(self, *args, **kwargs) -> None:
         if self.question.type == 'text':
@@ -137,11 +140,15 @@ class ResponseOptionModel(models.Model):
         ordering = ('pk',)
 
 
-class ActorModel(models.Model):
-    unique_key = models.UUIDField(
+class ActorModel(db_models.Model):
+    unique_key = db_models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
         editable=False)
+    user = db_models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        unique=True, null=True, on_delete=db_models.CASCADE,
+        related_name='actors')
     __first_unique_key = None
 
     def __init__(self, *args, **kwargs) -> None:
@@ -166,14 +173,14 @@ class ActorModel(models.Model):
         ordering = ('pk',)
 
 
-class SessionModel(models.Model):
-    unique_key = models.UUIDField(
+class SessionModel(db_models.Model):
+    unique_key = db_models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
         editable=False)
     __first_unique_key = None
-    actor = models.ForeignKey(
-        ActorModel, on_delete=models.CASCADE,
+    actor = db_models.ForeignKey(
+        ActorModel, on_delete=db_models.CASCADE,
         null=False, related_name='sessions')
 
     def __init__(self, *args, **kwargs) -> None:
@@ -198,15 +205,15 @@ class SessionModel(models.Model):
         ordering = ('pk',)
 
 
-class AnswerActModel(models.Model):
-    session = models.ForeignKey(
-        SessionModel, on_delete=models.CASCADE,
+class AnswerActModel(db_models.Model):
+    session = db_models.ForeignKey(
+        SessionModel, on_delete=db_models.CASCADE,
         related_name='answer_acts', null=False)
-    response = models.ForeignKey(
-        ResponseOptionModel, null=False, on_delete=models.CASCADE,
+    response = db_models.ForeignKey(
+        ResponseOptionModel, null=False, on_delete=db_models.CASCADE,
         related_name='answer_acts')
-    content = models.TextField(null=True)
-    create_time = models.DateTimeField(auto_now_add=True, null=False)
+    content = db_models.TextField(null=True)
+    create_time = db_models.DateTimeField(auto_now_add=True, null=False)
 
     def __str__(self):
         if self.response.question.type == 'text':
