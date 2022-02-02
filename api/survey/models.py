@@ -54,7 +54,7 @@ class SurveyModel(models.Model):
         db_table = 'api_surveys'
         verbose_name = 'survey'
         verbose_name_plural = 'surveys'
-        # ordering = ('', 'begin_date',)
+        ordering = ('begin_date',)
 
 
 class QuestionModel(models.Model):
@@ -100,6 +100,7 @@ class QuestionModel(models.Model):
         db_table = 'api_questions'
         verbose_name = 'question'
         verbose_name_plural = 'questions'
+        ordering = ('pk',)
 
 
 class ResponseOptionModel(models.Model):
@@ -133,6 +134,7 @@ class ResponseOptionModel(models.Model):
         db_table = 'api_response_options'
         verbose_name = 'response option'
         verbose_name_plural = 'response options'
+        ordering = ('pk',)
 
 
 class ActorModel(models.Model):
@@ -161,6 +163,7 @@ class ActorModel(models.Model):
         db_table = 'api_actors'
         verbose_name = 'survey actor'
         verbose_name_plural = 'survey actors'
+        ordering = ('pk',)
 
 
 class SessionModel(models.Model):
@@ -192,6 +195,7 @@ class SessionModel(models.Model):
         db_table = 'api_sessions'
         verbose_name = 'survey session'
         verbose_name_plural = 'survey sessions'
+        ordering = ('pk',)
 
 
 class AnswerActModel(models.Model):
@@ -234,3 +238,4 @@ class AnswerActModel(models.Model):
         db_table = 'api_answer_acts'
         verbose_name = 'answer act'
         verbose_name_plural = 'answer acts'
+        ordering = ('create_time', 'pk',)
