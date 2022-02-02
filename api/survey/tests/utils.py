@@ -118,9 +118,8 @@ def create_test_surveys_questions_and_response_options_via_model(number_of_quest
 
     questions: List[QuestionModel] = []
     for survey in surveys:
-        for type in ("one", "many", "text"):
             questions.extend(create_test_questions_via_model(
-                survey, type, number_of_questions))
+                survey, ("one", "many", "text"), number_of_questions))
 
     responses: List[ResponseOptionModel] = []
     for question in questions:
