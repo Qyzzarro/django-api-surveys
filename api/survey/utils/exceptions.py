@@ -12,5 +12,8 @@ class WrongQueryParamsException(BadRequest):
 class WrongDateOrderException(RuntimeError):
     pass
 
-class BeginDateEditException(RuntimeError):
+class BeginDateEditTryException(RuntimeError):
+    pass
+
+class WrongChoiseException(RuntimeError):
     pass

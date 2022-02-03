@@ -1,5 +1,6 @@
 from datetime import timedelta
 from datetime import date
+from random import randint
 from uuid import uuid4
 
 from django.test import TestCase
@@ -45,6 +46,21 @@ class SurveyModelTestCase(TestCase):
 
 
 class QuestionModelTestCase(TestCase):
+    def test_wrong_type(self):
+        survey = create_test_survey_via_model()
+        wrong_type = chr(randint(0, 127))
+        try:
+            question = QuestionModel(
+                survey=survey,
+                type=wrong_type,
+                content="",
+            )
+            question.save()
+        except WrongChoiseException as e:
+            pass
+        else:
+            self.fail("It can choise type which is not in QuestionModel.TYPES.")
+
     def test_create_fake_resposen_option(self):
         survey = create_test_survey_via_model()
         question = create_test_questions_via_model(survey, ("text",), 1)[0]

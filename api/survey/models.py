@@ -7,7 +7,7 @@ from django.db import models as db_models
 from django.db.models.query import QuerySet
 
 from .utils.exceptions import (
-    BeginDateEditException, NumberExcess, WrongDateOrderException,)
+    BeginDateEditTryException, NumberExcess, WrongChoiseException, WrongDateOrderException,)
 
 
 class SurveyModel(db_models.Model):
@@ -34,7 +34,7 @@ class SurveyModel(db_models.Model):
         if not self.__first_begin_date in ['', None]:
             self.begin_date = self.__first_begin_date
         if self.__first_begin_date != self.begin_date:
-            raise BeginDateEditException(
+            raise BeginDateEditTryException(
                 'Edition of begin_date is not available.')
 
     def __check_order_of_begin_end_dates(self) -> None:
@@ -61,25 +61,25 @@ class SurveyModel(db_models.Model):
 
 
 class QuestionModel(db_models.Model):
-    # TODO: Use class based choises
-    TYPES = (
-        ('one', 'Only one answer'),
-        ('many', 'Many answers'),
-        ('text', 'Text answer'),
-    )
+    class TYPES(db_models.TextChoices):
+        ONE = 'one', 'Only one answer'
+        MANY = 'many', 'Many answers'
+        TEXT = 'text', 'Text answer'
 
     survey = db_models.ForeignKey(
         SurveyModel, on_delete=db_models.CASCADE,
         related_name='questions', null=False)
-    type = db_models.TextField(choices=TYPES, blank=False, null=False)
+    type = db_models.TextField(choices=TYPES.choices, blank=False, null=False)
     content = db_models.TextField(blank=True, null=False)
 
     def save(self, *args, **kwargs) -> None:
         super().save(*args, **kwargs)
-        if self.type not in [type_short for type_short, type_long in QuestionModel.TYPES]:
-            raise BaseException()  # TODO: Add exception
-        if self.type == 'text':
-            self.__create_fake_response_option()
+        self.__check_type_is_correct()
+        self.__create_fake_response_option_for_text_type()
+
+    def __check_type_is_correct(self) -> None:
+        if self.type not in [type_short for type_short, type_long in QuestionModel.TYPES.choices]:
+            raise WrongChoiseException(f"{self.type} is not in {QuestionModel.TYPES.choices}.")  # TODO: Add exception
 
     def get_response_options(self) -> QuerySet:
         return ResponseOptionModel.objects.filter(question=self)
@@ -92,9 +92,10 @@ class QuestionModel(db_models.Model):
     def is_published(self) -> None:
         return self.survey.is_published
 
-    def __create_fake_response_option(self) -> None:
-        ResponseOptionModel.objects.create(
-            question=self, content='fake_answer')
+    def __create_fake_response_option_for_text_type(self) -> None:
+        if self.type == 'text':
+            ResponseOptionModel.objects.create(
+                question=self, content='fake_answer')
 
     def __str__(self) -> str:
         return f'{self.survey}: {self.content[:50]}'
